@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Carbohydrate – Glucose & Fructose (Hóa học 12)</title>
+<style>
+:root{--bg:#f1f5f9;--card:#fff;--ink:#0f172a;--mut:#64748b;--pri:#2563eb;--bd:#e2e8f0}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);display:flex;min-height:100vh}
+aside{width:380px;flex:none;background:var(--card);border-right:1px solid var(--bd);padding:16px;overflow:auto;height:100vh;position:sticky;top:0}
+main{flex:1;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+h1{font-size:18px;margin:0}
+.sub{font-size:12px;color:var(--mut);margin:2px 0 0}
+h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:18px 0 8px}
+.row{display:flex;gap:6px;flex-wrap:wrap}
+button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--bd);background:#fff;border-radius:10px;padding:8px 12px;transition:.15s}
+button:hover{border-color:var(--pri)}
+button.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+button.big{width:100%;margin-top:8px;background:#0f766e;color:#fff;border:0;font-weight:600}
+button.big.alk{background:#7c3aed}
+.box{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px}
+svg text{font-family:system-ui,sans-serif}
+#sim{width:100%;height:auto;max-height:62vh;background:linear-gradient(#f8fafc,#eef2ff);border-radius:12px}
+.glow{animation:g 1s ease-in-out infinite alternate}
+@keyframes g{from{opacity:.35}to{opacity:.95}}
+.chips{display:flex;align-items:center;gap:4px;font-size:12px;margin-top:8px;flex-wrap:wrap}
+.chip{padding:4px 8px;border-radius:99px;background:var(--bg);color:var(--mut)}
+.chip.on{background:#ede9fe;color:#6d28d9;font-weight:700}
+#amsg{font-size:13px;color:#475569;margin-top:6px;min-height:36px}
+.pc{border:1px dashed #cbd5e1;border-radius:12px;padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:.2s}
+.pc:hover{border-color:var(--pri);background:#f8fafc}
+.pc b{display:block;font-size:14px}
+.pc small{color:var(--mut)}
+.pc.open{border-style:solid;border-color:var(--pri);background:#eff6ff;cursor:default}
+.eq{font-family:ui-monospace,monospace;font-size:12px;background:#fff;border-radius:8px;padding:6px;margin-top:6px;overflow-x:auto}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+input[type=range]{width:100%}
+#tube{width:130px;flex:none}
+#liq,#mir,#prec{transition:none}
+.go #liq{transition:fill 2.5s}.go #prec{transition:opacity 2.5s}.go #mir{transition:opacity 2.5s}
+@media(max-width:900px){body{flex-direction:column}aside{width:100%;height:auto;position:static}.grid{grid-template-columns:1fr}}
+</style></head>
+<body>
+<aside>
+  <h1>🧬 Carbohydrate – Hóa học 12</h1>
+  <p class="sub">Glucose &amp; Fructose · Kết nối tri thức</p>
+
+  <h2>1. Chọn chất</h2>
+  <div class="row"><button id="b-glu" onclick="setSub('glu')">Glucose</button><button id="b-fru" onclick="setSub('fru')">Fructose</button></div>
+
+  <h2>2. Dạng tồn tại</h2>
+  <div class="row"><button id="f-open" onclick="setForm('open')">Mạch hở</button><button id="f-alpha" onclick="setForm('alpha')">Vòng α</button><button id="f-beta" onclick="setForm('beta')">Vòng β</button></div>
+  <button class="big" id="tg" onclick="setForm(st.target===1||st.pending?'open':st.anomer)">Đóng vòng</button>
+  <div style="margin-top:8px;font-size:12px;color:var(--mut)">Tiến trình đóng/mở vòng (kéo để quan sát)</div>
+  <input type="range" id="sl" min="0" max="100" value="0" oninput="slide(this.value)">
+
+  <h2>3. Môi trường kiềm</h2>
+  <button class="big alk" onclick="alkali()">＋ Thêm OH⁻</button>
+  <div class="chips"><span class="chip" id="c0">Glucose</span>⇌<span class="chip" id="c1">Enediol</span>⇌<span class="chip" id="c2">Fructose</span></div>
+  <div id="amsg">Nhấn “Thêm OH⁻” để xem glucose và fructose chuyển hóa qua lại.</div>
+
+  <h2>4. Dự đoán tính chất hóa học</h2>
+  <div id="cards"></div>
+</aside>
+
+<main>
+  <div class="box">
+    <svg id="sim" viewBox="0 0 600 400"></svg>
+  </div>
+  <div class="grid">
+    <div class="box"><b id="itl"></b><p id="itx" style="font-size:14px;line-height:1.5;margin:6px 0 0"></p></div>
+    <div class="box" style="display:flex;gap:10px;align-items:center">
+      <svg id="tube" viewBox="0 0 140 200">
+        <defs><clipPath id="cp"><path d="M40 20V140a30 30 0 0 0 60 0V20z"/></clipPath></defs>
+        <g clip-path="url(#cp)"><rect id="liq" x="30" y="70" width="80" height="130" style="fill:#e2e8f0"/><g id="prec" style="opacity:0"></g></g>
+        <path id="mir" d="M44 60V140a26 26 0 0 0 52 0V60" fill="none" stroke="#94a3b8" stroke-width="6" style="opacity:0"/>
+        <path d="M40 20V140a30 30 0 0 0 60 0V20" fill="none" stroke="#475569" stroke-width="3"/>
+        <path id="fl" d="M70 200c-12-8-9-16 0-24 9 8 12 16 0 24z" fill="#f97316" style="display:none"/>
+      </svg>
+      <div id="rtx" style="font-size:14px;line-height:1.5">Chọn một thẻ ở bảng bên trái để xem thí nghiệm mô phỏng.</div>
+    </div>
+  </div>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const st={sub:'glu',anomer:'beta',t:0,target:0,pending:null,ed:false,bub:-1,busy:false,rx:null};
+const L=(a,b,k)=>a+(b-a)*k, ez=x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2, sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+function model(){
+  const al=st.anomer==='alpha', g=st.sub==='glu', ch={};
+  for(let i=1;i<=6;i++)ch['C'+i]=[300,45+55*(i-1)];
+  ch.O=[335,265];
+  let rg,subs,ac;
+  // subs: [carbon, chainLabel, ringLabel, chainDir, ringDir, isAnomeric]
+  if(g){
+    rg={C1:[410,195],C2:[350,250],C3:[230,250],C4:[170,195],C5:[230,140],C6:[230,85],O:[350,140]};
+    subs=[['C1','O','OH',[1,0],[0,al?1:-1],1],['C2','OH','OH',[1,0],[0,1]],['C3','OH','OH',[-1,0],[0,-1]],['C4','OH','OH',[1,0],[0,1]],['C6','OH','OH',[0,1],[0,-1]]];ac='C1';
+  }else{
+    rg={C2:[385,195],C3:[350,260],C4:[250,260],C5:[215,195],O:[300,140],C6:[200,135],C1:al?[410,140]:[410,250]};
+    subs=[['C1','OH','OH',[-1,0],[1,0]],['C2','O','OH',[1,0],[0,al?1:-1],1],['C3','OH','OH',[-1,0],[0,-1]],['C4','OH','OH',[1,0],[0,1]],['C6','OH','OH',[0,1],[0,-1]]];ac='C2';
+  }
+  return{ch,rg,subs,ac,g};
+}
+
+function draw(){
+  const m=model(),k=ez(st.t),P={};
+  for(const n in m.ch)P[n]=[L(m.ch[n][0],m.rg[n][0],k),L(m.ch[n][1],m.rg[n][1],k)];
+  const rn=m.g?['O','C1','C2','C3','C4','C5']:['O','C2','C3','C4','C5'];
+  let s=`<polygon points="${rn.map(n=>P[n].join(',')).join(' ')}" fill="#bfdbfe" opacity="${k*.6}"/>`;
+  const ln=(a,b,c='#334155',w=3,o=1,d='')=>`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${c}" stroke-width="${w}" opacity="${o}" ${d?`stroke-dasharray="${d}"`:''} stroke-linecap="round"/>`;
+  [['C1','C2'],['C2','C3'],['C3','C4'],['C4','C5'],['C5','C6'],['C5','O']].forEach(b=>s+=ln(P[b[0]],P[b[1]]));
+  s+=ln(P.O,P[m.ac],'#334155',3,Math.min(1,Math.max(0,(k-.5)*4)));
+  if(st.ed)s+=ln([P.C1[0]+7,P.C1[1]+6],[P.C2[0]+7,P.C2[1]-6]);
+  if(st.t>0&&st.t<1)s+=ln(P.O,P[m.ac],'#ef4444',3,Math.sin(Math.PI*k),'6 5')+`<text x="${(P.O[0]+P[m.ac][0])/2+18}" y="${(P.O[1]+P[m.ac][1])/2}" font-size="12" fill="#ef4444" opacity="${Math.sin(Math.PI*k)}">–OH (C5) tấn công C=O</text>`;
+  let cap='';
+  m.subs.forEach(sb=>{
+    const [on,cl,rl,cd,rd,an]=sb, d=[L(cd[0],rd[0],k),L(cd[1],rd[1],k)], a=P[on];
+    const e=[a[0]+d[0]*34,a[1]+d[1]*34], lp=[e[0]+d[0]*12,e[1]+d[1]*12];
+    s+=ln(a,e);
+    let lab=k<.5?cl:rl;
+    if(st.ed&&lab==='O')lab='OH';
+    if(lab==='O'&&!st.ed){const px=-d[1]*5,py=d[0]*5;s+=ln([a[0]+px,a[1]+py],[e[0]+px,e[1]+py],'#334155',3,1-k);}
+    if(an&&k>.5&&!st.ed){
+      s+=`<circle class="glow" cx="${lp[0]}" cy="${lp[1]}" r="19" fill="#fde047" stroke="#ef4444" stroke-width="2" style="filter:drop-shadow(0 0 8px #f59e0b)"/>`;
+      cap+=`<text x="${lp[0]}" y="${lp[1]+(d[1]>0?38:-28)}" text-anchor="middle" font-size="13" font-weight="700" fill="#dc2626">OH ${m.g?'hemiacetal (C1)':'hemiketal (C2)'}</text>`;
+    }
+    if(an&&k<.35&&!st.ed){
+      s+=`<circle class="glow" cx="${lp[0]}" cy="${lp[1]}" r="17" fill="#fdba74" opacity=".7"/>`;
+      cap+=`<text x="${lp[0]+26}" y="${lp[1]+4}" font-size="13" font-weight="700" fill="#c2410c">Nhóm C=O (${m.g?'anđehit':'xeton'})</text>`;
+    }
+    s+=`<text x="${lp[0]}" y="${lp[1]}" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="700" fill="#b91c1c">${lab}</text>`;
+  });
+  for(const n in P){
+    const o=n==='O';
+    s+=`<circle cx="${P[n][0]}" cy="${P[n][1]}" r="14" fill="${o?'#fecaca':'#fff'}" stroke="${o?'#dc2626':'#334155'}" stroke-width="2"/><text x="${P[n][0]}" y="${P[n][1]}" text-anchor="middle" dominant-baseline="central" font-size="${o?11:11}" font-weight="600" fill="#0f172a">${o?(k<.5?'OH':'O'):n}</text>`;
+  }
+  s+=cap;
+  if(st.bub>=0){const x=L(520,P.C2[0]+45,st.bub),y=L(60,P.C2[1]-5,st.bub);s+=`<circle cx="${x}" cy="${y}" r="17" fill="#a78bfa"/><text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="12" font-weight="700">OH⁻</text>`;}
+  s+=`<text x="16" y="28" font-size="17" font-weight="700" fill="#1e293b">${title()}</text>`;
+  $('sim').innerHTML=s;
+}
+
+function title(){
+  const n=st.sub==='glu'?'Glucose':'Fructose';
+  if(st.ed)return 'Enediol (trung gian)';
+  if(st.t<.02)return n+' – mạch hở';
+  if(st.t>.98)return (st.anomer==='alpha'?'α-':'β-')+n+(st.sub==='glu'?' (pyranose, 6 cạnh)':' (furanose, 5 cạnh)');
+  return n+' – đang '+(st.target>st.t?'đóng':'mở')+' vòng';
+}
+
+let ik='';
+function info(){
+  const key=st.sub+(st.t<.02?'o':st.anomer)+st.ed; if(key===ik)return; ik=key;
+  const g=st.sub==='glu',o=st.t<.02;
+  let t,x;
+  if(st.ed){t='Enediol';x='Hai nhóm –OH gắn vào C1=C2. Từ enediol, H⁺ có thể gắn lại vào C1 (tạo fructose) hoặc C2 (tạo glucose/mannose).';}
+  else if(g&&o){t='Glucose mạch hở · C₆H₁₂O₆';x='HOCH₂[CHOH]₄CHO: có nhóm –CHO (anđehit) ở C1 và 5 nhóm –OH → tính chất của poliancol và anđehit.';}
+  else if(g){t=(st.anomer==='alpha'?'α':'β')+'-Glucose (dạng vòng 6 cạnh)';x='Nhóm –OH ở C5 cộng vào C=O của C1 tạo nhóm –OH hemiacetal (phát sáng). '+(st.anomer==='alpha'?'Dạng α: OH hemiacetal nằm dưới mặt phẳng vòng.':'Dạng β: OH hemiacetal nằm trên mặt phẳng vòng.')+' Trong dung dịch, glucose chủ yếu ở dạng vòng, chỉ một lượng rất nhỏ ở dạng mạch hở.';}
+  else if(o){t='Fructose mạch hở · C₆H₁₂O₆';x='HOCH₂[CHOH]₃COCH₂OH: có nhóm C=O (xeton) ở C2 và 5 nhóm –OH.';}
+  else{t=(st.anomer==='alpha'?'α':'β')+'-Fructose (dạng vòng 5 cạnh)';x='Nhóm –OH ở C5 cộng vào C=O của C2 tạo nhóm –OH hemiketal (phát sáng). '+(st.anomer==='alpha'?'Dạng α: OH hemiketal nằm dưới mặt phẳng vòng.':'Dạng β: OH hemiketal nằm trên mặt phẳng vòng.');}
+  $('itl').textContent=t;$('itx').textContent=x;
+}
+
+function setForm(f){
+  st.ed=false;
+  if(f==='open'){st.target=0;st.pending=null;}
+  else if(st.t>.95&&st.anomer!==f){st.target=0;st.pending=f;}
+  else{st.anomer=f;st.target=1;st.pending=null;}
+}
+function slide(v){st.t=st.target=v/100;st.pending=null;st.ed=false;}
+function setSub(s){st.sub=s;st.ed=false;renderCards();run(st.rx);}
+
+async function alkali(){
+  if(st.busy)return; st.busy=true; setForm('open');
+  while(st.t>.01)await sleep(50);
+  const to=st.sub==='glu'?'fru':'glu', m=$('amsg');
+  m.textContent='① OH⁻ lấy H⁺ ở C2 (H linh động do ở cạnh nhóm C=O)…';
+  for(let i=0;i<=20;i++){st.bub=i/20;await sleep(50);} st.bub=-1;
+  st.ed=true; m.textContent='② Tạo enediol trung gian: HO–CH=C(OH)–…'; await sleep(2500);
+  st.ed=false; st.sub=to; renderCards(); run(st.rx);
+  m.textContent='③ Enediol nhận H⁺ trở lại → tạo '+(to==='fru'?'fructose':'glucose')+'. Đây là cân bằng: glucose ⇌ enediol ⇌ fructose.';
+  await sleep(800); st.busy=false;
+}
+
+// ---- Tính chất hóa học ----
+const RX={
+ cu:{n:'Cu(OH)₂ ở nhiệt độ thường',ic:'🧪'},
+ hot:{n:'Cu(OH)₂/NaOH, đun nóng',ic:'🔥'},
+ tol:{n:'Phản ứng tráng bạc',ic:'🪞'},
+ br:{n:'Dung dịch nước bromine',ic:'🟠'}
+};
+function res(k){
+  const g=st.sub==='glu',N=g?'glucose':'fructose';
+  return {
+   cu:['Kết tủa Cu(OH)₂ tan, tạo dung dịch xanh lam. Do phân tử '+N+' có nhiều nhóm –OH liền kề tạo phức với Cu²⁺.','2C₆H₁₂O₆ + Cu(OH)₂ → (C₆H₁₁O₆)₂Cu + 2H₂O'],
+   hot:[g?'Xuất hiện kết tủa đỏ gạch Cu₂O: nhóm –CHO bị oxi hóa.':'Vẫn có kết tủa đỏ gạch: trong môi trường kiềm, fructose chuyển thành glucose (qua enediol) nên bị oxi hóa.','CH₂OH[CHOH]₄CHO + 2Cu(OH)₂ + NaOH → CH₂OH[CHOH]₄COONa + Cu₂O↓ + 3H₂O'],
+   tol:[g?'Có lớp bạc sáng bóng bám vào thành ống nghiệm (nhóm –CHO bị oxi hóa).':'Cũng có lớp bạc bám thành ống: môi trường kiềm (NH₃) chuyển fructose thành glucose.','CH₂OH[CHOH]₄CHO + 2[Ag(NH₃)₂]OH → CH₂OH[CHOH]₄COONH₄ + 2Ag↓ + 3NH₃ + H₂O'],
+   br:[g?'Nước bromine mất màu nâu đỏ: nhóm –CHO bị oxi hóa thành –COOH (gluconic acid).':'Nước bromine không mất màu: fructose (xeton) không bị oxi hóa trong môi trường này, không chuyển thành glucose.',g?'CH₂OH[CHOH]₄CHO + Br₂ + H₂O → CH₂OH[CHOH]₄COOH + 2HBr':'Không phản ứng']
+  }[k];
+}
+function renderCards(){
+  $('cards').innerHTML=Object.keys(RX).map(k=>{
+    const o=st.rx===k,r=o?res(k):null;
+    return `<div class="pc ${o?'open':''}" onclick="pick('${k}')"><b>${RX[k].ic} ${RX[k].n}</b>`+(o?`<div style="font-size:13px;margin-top:4px">${r[0]}</div><div class="eq">${r[1]}</div>`:`<small>Em dự đoán hiện tượng gì? Nhấp để kiểm chứng.</small>`)+`</div>`;
+  }).join('');
+}
+function pick(k){st.rx=k;renderCards();run(k);}
+
+const prec=$('prec');
+for(let i=0;i<24;i++)prec.insertAdjacentHTML('beforeend',`<circle cx="${50+Math.random()*40}" cy="${138+Math.random()*30}" r="${3+Math.random()*3}"/>`);
+function run(k){
+  if(!k)return;
+  const g=st.sub==='glu',T=document.getElementById('tube').parentNode;
+  const C={
+   cu:{l0:'#bae6fd',l1:'#1d4ed8',p0:.9,p1:0,pc:'#7dd3fc',m:0,h:0},
+   hot:{l0:'#2563eb',l1:'#e0f2fe',p0:0,p1:1,pc:'#b91c1c',m:0,h:1},
+   tol:{l0:'#f1f5f9',l1:'#f8fafc',p0:0,p1:0,pc:'#94a3b8',m:1,h:1},
+   br:{l0:'#ea580c',l1:g?'#f8fafc':'#ea580c',p0:0,p1:0,pc:'#000',m:0,h:0}
+  }[k];
+  T.classList.remove('go');
+  $('liq').style.fill=C.l0;prec.style.fill=C.pc;prec.style.opacity=C.p0;$('mir').style.opacity=0;
+  $('fl').style.display=C.h?'block':'none';
+  $('rtx').innerHTML='<b>'+RX[k].n+'</b><br>'+res(k)[0];
+  void T.offsetWidth;
+  setTimeout(()=>{T.classList.add('go');$('liq').style.fill=C.l1;prec.style.opacity=C.p1;$('mir').style.opacity=C.m;},60);
+}
+
+function loop(now){
+  const dt=Math.min(.05,(now-(loop.l||now))/1000);loop.l=now;
+  if(st.t!==st.target){
+    const d=Math.sign(st.target-st.t)*dt*.6;
+    st.t=Math.abs(st.target-st.t)<=Math.abs(d)?st.target:st.t+d;
+    $('sl').value=st.t*100;
+  }else if(st.t===0&&st.pending){st.anomer=st.pending;st.pending=null;st.target=1;}
+  const f=st.t<.02?'open':st.anomer;
+  ['open','alpha','beta'].forEach(x=>$('f-'+x).classList.toggle('on',x===f));
+  ['glu','fru'].forEach(x=>$('b-'+x).classList.toggle('on',x===st.sub));
+  $('tg').textContent=(st.target===1||st.pending)?'Mở vòng (đứt liên kết O–C)':'Đóng vòng (–OH ở C5 tấn công C=O)';
+  const c=st.ed?1:st.sub==='glu'?0:2;
+  [0,1,2].forEach(i=>$('c'+i).classList.toggle('on',i===c));
+  draw();info();
+  requestAnimationFrame(loop);
+}
+renderCards();
+requestAnimationFrame(loop);
+</script>
+</body></html>
